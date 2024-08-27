@@ -3,20 +3,21 @@ import express from 'express';
 import { authenticateJwt, SECRET } from "../middleware/";
 import { User } from "../db";
 import {z} from 'zod';
-
-
-
+import {signupInput} from '@hemant99108/common';
+ 
 const router = express.Router();
 
   router.post('/signup', async (req, res) => {
-    const parsedResponse=signupInput.safeParse(req.body);
-    if(!parsedResponse.success){
+    let parsedInput=signupInput.safeParse(req.body);
+    if(!parsedInput.success){
       return res.status(411).json({
-        msg:'error while parsing the username and password'
+        msg:"error in parsing username and password in server/auth"
       })
     }
 
-    const { username, password } = req.body;
+    const  username = parsedInput.data.username;
+    const  password = parsedInput.data.password;
+    
     const user = await User.findOne({ username });
     if (user) {
       res.status(403).json({ message: 'User already exists' });
